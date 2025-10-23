@@ -3,6 +3,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+    network_mode: host
     container_name: kitchen_hand_app
     environment:
       DATABASE_URL: ${DATABASE_URL}
