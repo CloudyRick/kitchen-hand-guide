@@ -1198,26 +1198,30 @@ pub async fn login(
     }
 }
 
-/// GET /register - Show registration form (TEMPORARILY DISABLED)
-pub async fn register_form() -> Result<HttpResponse> {
-    // Registration temporarily disabled
-    Ok(HttpResponse::NotFound()
-        .content_type("text/html")
-        .body("<h1>Registration Temporarily Disabled</h1><p>Please contact an administrator for access.</p><p><a href='/login'>Go to Login</a> | <a href='/'>Go to Home</a></p>"))
+/// GET /register - Show registration form
+pub async fn register_form(auth: crate::middleware::OptionalAuth) -> Result<HttpResponse> {
+    // If already logged in, redirect to home
+    if auth.user.is_some() {
+        return Ok(HttpResponse::SeeOther()
+            .append_header(("Location", "/"))
+            .finish());
+    }
+
+    let template = RegisterTemplate { error: String::new() };
+
+    let html = template.render().map_err(|e| {
+        eprintln!("Template error: {:?}", e);
+        actix_web::error::ErrorInternalServerError("Failed to render template")
+    })?;
+
+    Ok(HttpResponse::Ok().content_type("text/html").body(html))
 }
 
-/// POST /register - Handle registration submission (TEMPORARILY DISABLED)
+/// POST /register - Handle registration submission
 pub async fn register(
     pool: web::Data<sqlx::PgPool>,
     form: web::Form<RegisterForm>,
 ) -> Result<HttpResponse> {
-    // Registration temporarily disabled
-    return Ok(HttpResponse::NotFound()
-        .content_type("text/html")
-        .body("<h1>Registration Temporarily Disabled</h1><p>Please contact an administrator for access.</p><p><a href='/login'>Go to Login</a> | <a href='/'>Go to Home</a></p>"));
-
-    #[allow(unreachable_code)]
-    {
     // Validate form
     if let Err(error_msg) = form.validate() {
         let template = RegisterTemplate {
@@ -1292,7 +1296,6 @@ pub async fn register(
                 .finish()
         )
         .finish())
-    }
 }
 
 /// GET /logout - Handle logout
