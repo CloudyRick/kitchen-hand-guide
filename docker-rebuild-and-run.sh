@@ -41,6 +41,18 @@ docker run -d \
 
 if [ $? -eq 0 ]; then
     echo "✅ Container started successfully!"
+    
+    # Clean up old Docker images (keep only the latest 2 versions)
+    echo "🧹 Cleaning up old Docker images..."
+    docker image prune -f --filter "dangling=true" 2>/dev/null || true
+    
+    # Remove old versions of kitchen-hand-guide_app (keep latest 2)
+    OLD_IMAGES=$(docker images kitchen-hand-guide_app --format "table {{.ID}}\t{{.CreatedAt}}" | tail -n +2 | head -n -2 | awk '{print $1}')
+    if [ ! -z "$OLD_IMAGES" ]; then
+        echo "🗑️  Removing old kitchen-hand-guide_app images..."
+        echo "$OLD_IMAGES" | xargs docker rmi -f 2>/dev/null || true
+    fi
+    
     echo ""
     echo "📋 Container Details:"
     echo "   Name: kitchen_hand_app"
