@@ -52,8 +52,8 @@ struct ProductEditTemplate {
 /// Multipart form structure for file upload
 #[derive(Debug, MultipartForm)]
 pub struct UploadForm {
-    #[multipart(limit = "5 MB")]
-    picture: TempFile,
+    #[multipart(limit = "20 MB")]
+    picture: Option<TempFile>,
     supplier_name: Text<String>,
     product_name: Text<String>,
     location: Text<String>,
@@ -63,7 +63,7 @@ pub struct UploadForm {
 /// Multipart form structure for preparation upload
 #[derive(Debug, MultipartForm)]
 pub struct PreparationUploadForm {
-    #[multipart(limit = "5 MB")]
+    #[multipart(limit = "20 MB")]
     picture: Option<TempFile>,
     name: Text<String>,
     prep_type: Text<String>,
@@ -146,84 +146,90 @@ pub async fn create_product(
             .body(html));
     }
 
-    // Validate file extension
-    let filename = form.picture.file_name.as_ref().ok_or_else(|| {
-        actix_web::error::ErrorBadRequest("No file uploaded")
-    })?;
-
-    if !utils::is_valid_image_extension(filename) {
-        let template = ProductNewTemplate {
-            error: "Invalid file type. Only JPG, PNG, and WEBP are allowed.".to_string(),
-            is_authenticated: auth.user.is_some(),
-            username: auth.user.map(|u| u.username),
-        };
-        let html = template.render().map_err(|e| {
-            eprintln!("Template error: {:?}", e);
-            actix_web::error::ErrorInternalServerError("Failed to render template")
+    // Handle optional image upload
+    let picture_url = if let Some(picture) = form.picture {
+        // Validate file extension
+        let filename = picture.file_name.as_ref().ok_or_else(|| {
+            actix_web::error::ErrorBadRequest("Invalid file uploaded")
         })?;
-        return Ok(HttpResponse::BadRequest()
-            .content_type("text/html")
-            .body(html));
-    }
 
-    // Read file data
-    let file_path = form.picture.file.path();
-    let mut file_content = Vec::new();
-    let mut file = std::fs::File::open(file_path).map_err(|e| {
-        eprintln!("Failed to open uploaded file: {:?}", e);
-        actix_web::error::ErrorInternalServerError("Failed to read uploaded file")
-    })?;
-    file.read_to_end(&mut file_content).map_err(|e| {
-        eprintln!("Failed to read uploaded file: {:?}", e);
-        actix_web::error::ErrorInternalServerError("Failed to read uploaded file")
-    })?;
+        if !utils::is_valid_image_extension(filename) {
+            let template = ProductNewTemplate {
+                error: "Invalid file type. Only JPG, PNG, and WEBP are allowed.".to_string(),
+                is_authenticated: auth.user.is_some(),
+                username: auth.user.map(|u| u.username),
+            };
+            let html = template.render().map_err(|e| {
+                eprintln!("Template error: {:?}", e);
+                actix_web::error::ErrorInternalServerError("Failed to render template")
+            })?;
+            return Ok(HttpResponse::BadRequest()
+                .content_type("text/html")
+                .body(html));
+        }
 
-    // Check if S3 is enabled
-    let s3_enabled = std::env::var("S3_ENABLED")
-        .unwrap_or_else(|_| "false".to_string())
-        .parse::<bool>()
-        .unwrap_or(false);
+        // Read file data
+        let file_path = picture.file.path();
+        let mut file_content = Vec::new();
+        let mut file = std::fs::File::open(file_path).map_err(|e| {
+            eprintln!("Failed to open uploaded file: {:?}", e);
+            actix_web::error::ErrorInternalServerError("Failed to read uploaded file")
+        })?;
+        file.read_to_end(&mut file_content).map_err(|e| {
+            eprintln!("Failed to read uploaded file: {:?}", e);
+            actix_web::error::ErrorInternalServerError("Failed to read uploaded file")
+        })?;
 
-    let picture_url = if s3_enabled {
-        // Upload to S3
-        let bucket_name = std::env::var("S3_BUCKET_NAME")
-            .unwrap_or_else(|_| "kitchen-hand-guide".to_string());
-        let content_type = utils::get_content_type(filename);
+        // Check if S3 is enabled
+        let s3_enabled = std::env::var("S3_ENABLED")
+            .unwrap_or_else(|_| "false".to_string())
+            .parse::<bool>()
+            .unwrap_or(false);
 
-        utils::upload_to_s3(
-            s3_client.get_ref(),
-            &bucket_name,
-            Bytes::from(file_content),
-            filename,
-            content_type,
-        )
-        .await
-        .map_err(|e| {
-            eprintln!("S3 upload error: {:?}", e);
-            actix_web::error::ErrorInternalServerError("Failed to upload file to S3")
-        })?
+        if s3_enabled {
+            // Upload to S3
+            let bucket_name = std::env::var("S3_BUCKET_NAME")
+                .unwrap_or_else(|_| "kitchen-hand-guide".to_string());
+            let content_type = utils::get_content_type(filename);
+
+            utils::upload_to_s3(
+                s3_client.get_ref(),
+                &bucket_name,
+                Bytes::from(file_content),
+                filename,
+                content_type,
+            )
+            .await
+            .map_err(|e| {
+                eprintln!("S3 upload error: {:?}", e);
+                actix_web::error::ErrorInternalServerError("Failed to upload file to S3")
+            })?
+        } else {
+            // Save to local filesystem (fallback)
+            let upload_dir = std::env::var("UPLOAD_DIR").unwrap_or_else(|_| "./static/uploads".to_string());
+            std::fs::create_dir_all(&upload_dir).map_err(|e| {
+                eprintln!("Failed to create upload directory: {:?}", e);
+                actix_web::error::ErrorInternalServerError("Failed to create upload directory")
+            })?;
+
+            let extension = std::path::Path::new(filename)
+                .extension()
+                .and_then(|ext| ext.to_str())
+                .unwrap_or("jpg");
+
+            let unique_filename = format!("{}.{}", Uuid::new_v4(), extension);
+            let filepath = std::path::Path::new(&upload_dir).join(&unique_filename);
+
+            picture.file.persist(&filepath).map_err(|e| {
+                eprintln!("Failed to save uploaded file: {:?}", e);
+                actix_web::error::ErrorInternalServerError("Failed to save uploaded file")
+            })?;
+
+            format!("/static/uploads/{}", unique_filename)
+        }
     } else {
-        // Save to local filesystem (fallback)
-        let upload_dir = std::env::var("UPLOAD_DIR").unwrap_or_else(|_| "./static/uploads".to_string());
-        std::fs::create_dir_all(&upload_dir).map_err(|e| {
-            eprintln!("Failed to create upload directory: {:?}", e);
-            actix_web::error::ErrorInternalServerError("Failed to create upload directory")
-        })?;
-
-        let extension = std::path::Path::new(filename)
-            .extension()
-            .and_then(|ext| ext.to_str())
-            .unwrap_or("jpg");
-
-        let unique_filename = format!("{}.{}", Uuid::new_v4(), extension);
-        let filepath = std::path::Path::new(&upload_dir).join(&unique_filename);
-
-        form.picture.file.persist(&filepath).map_err(|e| {
-            eprintln!("Failed to save uploaded file: {:?}", e);
-            actix_web::error::ErrorInternalServerError("Failed to save uploaded file")
-        })?;
-
-        format!("/static/uploads/{}", unique_filename)
+        // No image provided, use empty string
+        String::new()
     };
 
     // Insert into database
@@ -730,21 +736,26 @@ pub async fn update_product(
     }
 
     // Check if new image was uploaded
-    let picture_url = if let Some(filename) = &form.picture.file_name {
-        if !filename.is_empty() && utils::is_valid_image_extension(filename) {
-            // Read and upload new image
-            let file_path = form.picture.file.path();
-            let mut file_content = Vec::new();
-            let mut file = std::fs::File::open(file_path).map_err(|e| {
-                eprintln!("Failed to open uploaded file: {:?}", e);
-                actix_web::error::ErrorInternalServerError("Failed to read uploaded file")
-            })?;
-            file.read_to_end(&mut file_content).map_err(|e| {
-                eprintln!("Failed to read uploaded file: {:?}", e);
-                actix_web::error::ErrorInternalServerError("Failed to read uploaded file")
-            })?;
+    let picture_url = if let Some(picture) = &form.picture {
+        if let Some(filename) = &picture.file_name {
+            if !filename.is_empty() && utils::is_valid_image_extension(filename) {
+                // Read and upload new image
+                let file_path = picture.file.path();
+                let mut file_content = Vec::new();
+                let mut file = std::fs::File::open(file_path).map_err(|e| {
+                    eprintln!("Failed to open uploaded file: {:?}", e);
+                    actix_web::error::ErrorInternalServerError("Failed to read uploaded file")
+                })?;
+                file.read_to_end(&mut file_content).map_err(|e| {
+                    eprintln!("Failed to read uploaded file: {:?}", e);
+                    actix_web::error::ErrorInternalServerError("Failed to read uploaded file")
+                })?;
 
-            upload_image_to_storage(&s3_client, &file_content, filename).await?
+                upload_image_to_storage(&s3_client, &file_content, filename).await?
+            } else {
+                // Keep existing image
+                existing_product.picture_url.clone()
+            }
         } else {
             // Keep existing image
             existing_product.picture_url.clone()
@@ -1208,91 +1219,13 @@ pub async fn register_form() -> Result<HttpResponse> {
 
 /// POST /register - Handle registration submission (TEMPORARILY DISABLED)
 pub async fn register(
-    pool: web::Data<sqlx::PgPool>,
-    form: web::Form<RegisterForm>,
+    _pool: web::Data<sqlx::PgPool>,
+    _form: web::Form<RegisterForm>,
 ) -> Result<HttpResponse> {
     // Registration temporarily disabled
-    return Ok(HttpResponse::NotFound()
+    Ok(HttpResponse::NotFound()
         .content_type("text/html")
-        .body("<h1>Registration Temporarily Disabled</h1><p>Please contact an administrator for access.</p><p><a href='/login'>Go to Login</a> | <a href='/'>Go to Home</a></p>"));
-
-    #[allow(unreachable_code)]
-    {
-    // Validate form
-    if let Err(error_msg) = form.validate() {
-        let template = RegisterTemplate {
-            error: error_msg,
-        };
-        let html = template.render().map_err(|e| {
-            eprintln!("Template error: {:?}", e);
-            actix_web::error::ErrorInternalServerError("Failed to render template")
-        })?;
-        return Ok(HttpResponse::BadRequest()
-            .content_type("text/html")
-            .body(html));
-    }
-
-    // Check if username already exists
-    if let Ok(Some(_)) = User::get_by_username(pool.get_ref(), &form.username).await {
-        let template = RegisterTemplate {
-            error: "Username already exists".to_string(),
-        };
-        let html = template.render().map_err(|e| {
-            eprintln!("Template error: {:?}", e);
-            actix_web::error::ErrorInternalServerError("Failed to render template")
-        })?;
-        return Ok(HttpResponse::BadRequest()
-            .content_type("text/html")
-            .body(html));
-    }
-
-    // Check if email already exists
-    if let Ok(Some(_)) = User::get_by_email(pool.get_ref(), &form.email).await {
-        let template = RegisterTemplate {
-            error: "Email already exists".to_string(),
-        };
-        let html = template.render().map_err(|e| {
-            eprintln!("Template error: {:?}", e);
-            actix_web::error::ErrorInternalServerError("Failed to render template")
-        })?;
-        return Ok(HttpResponse::BadRequest()
-            .content_type("text/html")
-            .body(html));
-    }
-
-    // Hash password
-    let password_hash = auth::hash_password(&form.password)
-        .map_err(|e| {
-            eprintln!("Password hashing error: {:?}", e);
-            actix_web::error::ErrorInternalServerError("Failed to hash password")
-        })?;
-
-    // Create user
-    let user = User::create(pool.get_ref(), &form.username, &form.email, &password_hash)
-        .await
-        .map_err(|e| {
-            eprintln!("Database error: {:?}", e);
-            actix_web::error::ErrorInternalServerError("Failed to create user")
-        })?;
-
-    // Generate token
-    let token = auth::generate_token(user.id, &user.username)
-        .map_err(|e| {
-            eprintln!("Token generation error: {:?}", e);
-            actix_web::error::ErrorInternalServerError("Failed to generate token")
-        })?;
-
-    // Set cookie and redirect to home
-    Ok(HttpResponse::SeeOther()
-        .append_header(("Location", "/"))
-        .cookie(
-            actix_web::cookie::Cookie::build("auth_token", token)
-                .path("/")
-                .http_only(true)
-                .finish()
-        )
-        .finish())
-    }
+        .body("<h1>Registration Temporarily Disabled</h1><p>Please contact an administrator for access.</p><p><a href='/login'>Go to Login</a> | <a href='/'>Go to Home</a></p>"))
 }
 
 /// GET /logout - Handle logout

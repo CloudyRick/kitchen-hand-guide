@@ -58,6 +58,9 @@ async fn main() -> std::io::Result<()> {
         App::new()
             // Add logger middleware
             .wrap(actix_middleware::Logger::default())
+            // Configure payload size for large file uploads (20MB)
+            .app_data(actix_web::web::PayloadConfig::default()
+                .limit(20 * 1024 * 1024)) // 20MB limit
             // Add database pool to app state
             .app_data(web::Data::new(pool.clone()))
             // Add S3 client to app state
