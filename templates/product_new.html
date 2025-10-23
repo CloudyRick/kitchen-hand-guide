@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+
+{% block title %}Add New Product - Kitchen Hand Guide{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-8 mx-auto">
+        <div class="card shadow">
+            <div class="card-header bg-primary text-white">
+                <h2 class="mb-0">Add New Product</h2>
+            </div>
+            <div class="card-body">
+                {% if !error.is_empty() %}
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <strong>Error!</strong> {{ error }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+                {% endif %}
+
+                <form action="/product" method="post" enctype="multipart/form-data" id="productForm">
+                    <div class="mb-3">
+                        <label for="supplier_name" class="form-label">Supplier Name <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="supplier_name" name="supplier_name"
+                               placeholder="e.g., Fresh Farm Co." required>
+                        <div class="form-text">The name of the supplier providing this product.</div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="product_name" class="form-label">Product Name <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="product_name" name="product_name"
+                               placeholder="e.g., Organic Tomatoes" required>
+                        <div class="form-text">The name of the product.</div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="location" class="form-label">Storage Location <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="location" name="location"
+                               placeholder="e.g., Cold Room A - Shelf 2" required>
+                        <div class="form-text">Where this product is stored in the kitchen.</div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="picture" class="form-label">Product Image <span class="text-danger">*</span></label>
+                        <input type="file" class="form-control" id="picture" name="picture"
+                               accept="image/jpeg,image/png,image/jpg,image/webp" required>
+                        <div class="form-text">Upload a clear photo of the product. Max size: 5MB. Formats: JPG, PNG, WEBP</div>
+                        <div id="imagePreview" class="mt-2"></div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="description" class="form-label">Description <span class="text-danger">*</span></label>
+                        <textarea class="form-control" id="description" name="description" rows="5"
+                                  placeholder="Include storage instructions, temperature requirements, shelf life, and any special handling notes..." required></textarea>
+                        <div class="form-text">Detailed information about storage, handling, and shelf life.</div>
+                    </div>
+
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-between">
+                        <a href="/" class="btn btn-secondary">Cancel</a>
+                        <button type="submit" class="btn btn-primary btn-lg">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-check-circle" viewBox="0 0 16 16">
+                                <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+                                <path d="M10.97 4.97a.235.235 0 0 0-.02.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-1.071-1.05z"/>
+                            </svg>
+                            Add Product
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+// Image preview functionality
+document.getElementById('picture').addEventListener('change', function(e) {
+    const preview = document.getElementById('imagePreview');
+    const file = e.target.files[0];
+
+    if (file) {
+        // Check file size (5MB = 5242880 bytes)
+        if (file.size > 5242880) {
+            preview.innerHTML = '<div class="alert alert-warning">File size exceeds 5MB. Please choose a smaller image.</div>';
+            this.value = '';
+            return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = function(event) {
+            preview.innerHTML = '<img src="' + event.target.result + '" class="img-thumbnail" style="max-width: 300px;">';
+        };
+        reader.readAsDataURL(file);
+    } else {
+        preview.innerHTML = '';
+    }
+});
+</script>
+{% endblock %}

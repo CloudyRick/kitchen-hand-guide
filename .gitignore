@@ -1,0 +1,21 @@
+# Rust
+/target/
+Cargo.lock
+
+# Environment
+.env
+
+# Uploads (keep directory structure)
+static/uploads/*
+!static/uploads/.gitkeep
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db

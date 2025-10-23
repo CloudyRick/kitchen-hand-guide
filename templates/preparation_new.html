@@ -1,0 +1,210 @@
+{% extends "base.html" %}
+
+{% block title %}Add New Preparation - Kitchen Hand Guide{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-8 mx-auto">
+        <div class="card shadow">
+            <div class="card-header bg-success text-white">
+                <h2 class="mb-0">Add New Preparation</h2>
+            </div>
+            <div class="card-body">
+                {% if !error.is_empty() %}
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <strong>Error!</strong> {{ error }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+                {% endif %}
+
+                <form action="/preparation" method="post" enctype="multipart/form-data">
+                    <div class="mb-3">
+                        <label for="name" class="form-label">Preparation Name <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="name" name="name"
+                               placeholder="e.g., Diced Tomatoes" required>
+                        <div class="form-text">A clear, descriptive name for this preparation task.</div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="picture" class="form-label">Picture (Optional)</label>
+                        <input type="file" class="form-control" id="picture" name="picture" accept="image/jpeg,image/png,image/webp">
+                        <div class="form-text">Upload an image of the preparation (JPG, PNG, or WEBP). This is optional.</div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="prep_type" class="form-label">Type <span class="text-danger">*</span></label>
+                        <select class="form-select" id="prep_type" name="prep_type" required>
+                            <option value="">Select type...</option>
+                            <option value="fruit">Fruit</option>
+                            <option value="bread">Bread</option>
+                            <option value="veg">Vegetables</option>
+                            <option value="meat">Meat</option>
+                            <option value="seafood">Seafood</option>
+                        </select>
+                        <div class="form-text">Category of the preparation.</div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="shift" class="form-label">Shift <span class="text-danger">*</span></label>
+                        <select class="form-select" id="shift" name="shift" required>
+                            <option value="">Select shift...</option>
+                            <option value="brekkie">Brekkie</option>
+                            <option value="lunch">Lunch</option>
+                            <option value="both">Both</option>
+                        </select>
+                        <div class="form-text">Which shift needs this preparation.</div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="location" class="form-label">Location <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="location" name="location"
+                               placeholder="e.g., Prep Station 1" required>
+                        <div class="form-text">Where this preparation task takes place.</div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Step-by-Step Instructions <span class="text-danger">*</span></label>
+                        <div id="steps-container">
+                            <!-- Steps will be added here dynamically -->
+                        </div>
+                        <button type="button" class="btn btn-outline-primary btn-sm mt-2" onclick="addStep()">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-plus-circle" viewBox="0 0 16 16">
+                                <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+                                <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z"/>
+                            </svg>
+                            Add Step
+                        </button>
+                        <div class="form-text">
+                            Add detailed steps with optional images. Be specific about times, temperatures, and safety procedures.
+                        </div>
+                    </div>
+
+                    <!-- Hidden field for steps (for backward compatibility, will be populated before submit) -->
+                    <input type="hidden" id="steps" name="steps" value="placeholder">
+
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-between">
+                        <a href="/preparations" class="btn btn-secondary">Cancel</a>
+                        <button type="submit" class="btn btn-success btn-lg">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-check-circle" viewBox="0 0 16 16">
+                                <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+                                <path d="M10.97 4.97a.235.235 0 0 0-.02.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-1.071-1.05z"/>
+                            </svg>
+                            Add Preparation
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Example Card -->
+        <div class="card mt-4 border-info">
+            <div class="card-header bg-info text-white">
+                <h5 class="mb-0">Example Format</h5>
+            </div>
+            <div class="card-body">
+                <p class="mb-2"><strong>Steps should be written like this:</strong></p>
+                <pre class="bg-light p-3 rounded mb-0">1. Wash tomatoes thoroughly under cold running water
+2. Remove the stem and core with a paring knife
+3. Cut tomatoes in half from top to bottom
+4. Place cut side down and slice into 1cm strips
+5. Rotate 90 degrees and dice into 1cm cubes
+6. Store in airtight container in cold room
+7. Label with date and time - use within 24 hours</pre>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+let stepCounter = 0;
+
+// Add a new step
+function addStep() {
+    stepCounter++;
+    const container = document.getElementById('steps-container');
+    const stepDiv = document.createElement('div');
+    stepDiv.className = 'card mb-3 step-card';
+    stepDiv.id = `step-${stepCounter}`;
+    stepDiv.innerHTML = `
+        <div class="card-body">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <h6 class="mb-0">Step ${stepCounter}</h6>
+                <button type="button" class="btn btn-sm btn-danger" onclick="removeStep(${stepCounter})">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash" viewBox="0 0 16 16">
+                        <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"/>
+                        <path fill-rule="evenodd" d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"/>
+                    </svg>
+                </button>
+            </div>
+            <div class="mb-2">
+                <textarea class="form-control step-description" name="step_description_${stepCounter}" rows="2"
+                          placeholder="Describe this step in detail..." required></textarea>
+            </div>
+            <div>
+                <label class="form-label small">Step Image (Optional)</label>
+                <input type="file" class="form-control form-control-sm" name="step_image_${stepCounter}"
+                       accept="image/jpeg,image/png,image/webp">
+            </div>
+        </div>
+    `;
+    container.appendChild(stepDiv);
+    updateStepNumbers();
+}
+
+// Remove a step
+function removeStep(stepId) {
+    const stepDiv = document.getElementById(`step-${stepId}`);
+    if (stepDiv) {
+        stepDiv.remove();
+        updateStepNumbers();
+    }
+}
+
+// Update step numbers after adding/removing
+function updateStepNumbers() {
+    const steps = document.querySelectorAll('.step-card');
+    steps.forEach((step, index) => {
+        const header = step.querySelector('h6');
+        if (header) {
+            header.textContent = `Step ${index + 1}`;
+        }
+    });
+
+    // Update the hidden steps field with concatenated descriptions
+    updateHiddenStepsField();
+}
+
+// Update hidden field before form submission
+function updateHiddenStepsField() {
+    const descriptions = Array.from(document.querySelectorAll('.step-description'))
+        .map((textarea, index) => `${index + 1}. ${textarea.value}`)
+        .filter(text => text.trim() !== `${Array.from(document.querySelectorAll('.step-description')).indexOf(text.split('. ')[1]?.trim()) + 1}. `)
+        .join('\n');
+    document.getElementById('steps').value = descriptions || 'placeholder';
+}
+
+// Form submission handler
+document.querySelector('form').addEventListener('submit', function(e) {
+    const stepsCount = document.querySelectorAll('.step-card').length;
+    if (stepsCount === 0) {
+        e.preventDefault();
+        alert('Please add at least one step to the preparation.');
+        return false;
+    }
+    updateHiddenStepsField();
+});
+
+// Add first step automatically on page load
+window.addEventListener('DOMContentLoaded', function() {
+    addStep();
+});
+</script>
+
+<style>
+.step-card {
+    border-left: 4px solid #0d6efd;
+}
+</style>
+{% endblock %}

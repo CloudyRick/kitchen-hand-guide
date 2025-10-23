@@ -1,0 +1,22 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(export PATH=\"$HOME/.cargo/bin:$PATH\")",
+      "Bash(RUST_LOG=info cargo run:*)",
+      "Bash(psql:*)",
+      "Bash(cargo check:*)",
+      "Bash(cargo build:*)",
+      "Bash(lsof:*)",
+      "Bash(xargs kill:*)",
+      "Bash(cargo clean:*)",
+      "Bash(export RUST_LOG=info)",
+      "Bash(cargo run:*)",
+      "Bash(killall:*)",
+      "Bash(docker compose build:*)",
+      "Bash(docker compose:*)",
+      "Bash(curl:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

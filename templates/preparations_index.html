@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+
+{% block title %}Preparations - Kitchen Hand Guide{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col">
+        <h1 class="display-4">Kitchen Preparations</h1>
+        <p class="lead">Learn how to prepare items for each shift</p>
+    </div>
+</div>
+
+{% if is_authenticated %}
+<div class="row mb-3">
+    <div class="col">
+        <a href="/preparation/new" class="btn btn-success btn-lg">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-plus-circle" viewBox="0 0 16 16">
+                <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+                <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z"/>
+            </svg>
+            Add New Preparation
+        </a>
+    </div>
+</div>
+{% endif %}
+
+{% if preparations.is_empty() %}
+<div class="alert alert-info" role="alert">
+    <h4 class="alert-heading">No preparations yet!</h4>
+    <p>Get started by adding your first preparation using the button above.</p>
+</div>
+{% else %}
+<div class="row">
+    <div class="col">
+        <h2 class="mb-4">All Preparations ({{ preparations.len() }})</h2>
+    </div>
+</div>
+
+<div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+    {% for prep in preparations %}
+    <div class="col">
+        <div class="card h-100 shadow-sm prep-card">
+            {% if !prep.picture_url.is_empty() %}
+            <img src="{{ prep.picture_url }}" class="card-img-top" alt="{{ prep.name }}" style="height: 200px; object-fit: cover;"
+                 onerror="this.onerror=null; this.src='data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 width=%27400%27 height=%27200%27%3E%3Crect width=%27400%27 height=%27200%27 fill=%27%23e9ecef%27/%3E%3Ctext x=%2750%25%27 y=%2750%25%27 dominant-baseline=%27middle%27 text-anchor=%27middle%27 font-family=%27sans-serif%27 font-size=%2720%27 fill=%27%236c757d%27%3ENo Image%3C/text%3E%3C/svg%3E';">
+            {% else %}
+            <svg xmlns="http://www.w3.org/2000/svg" width="400" height="200" class="card-img-top">
+                <rect width="400" height="200" fill="#e9ecef"/>
+                <text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-family="sans-serif" font-size="20" fill="#6c757d">No Image</text>
+            </svg>
+            {% endif %}
+            <div class="card-header
+                {% if prep.prep_type == "fruit" %}bg-success text-white
+                {% else if prep.prep_type == "veg" %}bg-success text-white
+                {% else if prep.prep_type == "meat" %}bg-danger text-white
+                {% else if prep.prep_type == "seafood" %}bg-info text-white
+                {% else if prep.prep_type == "bread" %}bg-warning text-dark
+                {% endif %}">
+                <h5 class="mb-0">{{ prep.name }}</h5>
+            </div>
+            <div class="card-body">
+                <div class="mb-2">
+                    <span class="badge bg-secondary">{{ prep.prep_type }}</span>
+                    <span class="badge
+                        {% if prep.shift == "brekkie" %}bg-primary
+                        {% else if prep.shift == "lunch" %}bg-warning text-dark
+                        {% else %}bg-dark
+                        {% endif %}">
+                        {{ prep.shift }}
+                    </span>
+                </div>
+                <p class="card-text">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-geo-alt" viewBox="0 0 16 16">
+                        <path d="M12.166 8.94c-.524 1.062-1.234 2.12-1.96 3.07A31.493 31.493 0 0 1 8 14.58a31.481 31.481 0 0 1-2.206-2.57c-.726-.95-1.436-2.008-1.96-3.07C3.304 7.867 3 6.862 3 6a5 5 0 0 1 10 0c0 .862-.305 1.867-.834 2.94zM8 16s6-5.686 6-10A6 6 0 0 0 2 6c0 4.314 6 10 6 10z"/>
+                        <path d="M8 8a2 2 0 1 1 0-4 2 2 0 0 1 0 4zm0 1a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/>
+                    </svg>
+                    <strong>Location:</strong> {{ prep.location }}
+                </p>
+            </div>
+            <div class="card-footer bg-transparent">
+                <a href="/preparation/{{ prep.id }}" class="btn btn-sm btn-primary w-100">View Steps</a>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+{% endblock %}

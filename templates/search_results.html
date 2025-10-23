@@ -1,0 +1,124 @@
+{% extends "base.html" %}
+
+{% block title %}Search Results - Kitchen Hand Guide{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col">
+        <h1 class="display-6">Search Results</h1>
+        <p class="text-muted">Showing results for "<strong>{{ query }}</strong>"</p>
+    </div>
+</div>
+
+{% if products.is_empty() && preparations.is_empty() %}
+<div class="alert alert-info">
+    <h4 class="alert-heading">No results found</h4>
+    <p>We couldn't find any products or preparations matching your search query. Try:</p>
+    <ul class="mb-0">
+        <li>Using different keywords</li>
+        <li>Checking your spelling</li>
+        <li>Using more general terms</li>
+    </ul>
+</div>
+{% else %}
+
+<!-- Products Section -->
+{% if !products.is_empty() %}
+<div class="mb-5">
+    <h2 class="h4 mb-3">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-box-seam" viewBox="0 0 16 16">
+            <path d="M8.186 1.113a.5.5 0 0 0-.372 0L1.846 3.5l2.404.961L10.404 2l-2.218-.887zm3.564 1.426L5.596 5 8 5.961 14.154 3.5l-2.404-.961zm3.25 1.7-6.5 2.6v7.922l6.5-2.6V4.24zM7.5 14.762V6.838L1 4.239v7.923l6.5 2.6zM7.443.184a1.5 1.5 0 0 1 1.114 0l7.129 2.852A.5.5 0 0 1 16 3.5v8.662a1 1 0 0 1-.629.928l-7.185 2.874a.5.5 0 0 1-.372 0L.63 13.09a1 1 0 0 1-.63-.928V3.5a.5.5 0 0 1 .314-.464L7.443.184z"/>
+        </svg>
+        Products ({{ products.len() }})
+    </h2>
+
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+        {% for product in products %}
+        <div class="col">
+            <div class="card h-100 shadow-sm hover-card">
+                <img src="{{ product.picture_url }}" class="card-img-top" alt="{{ product.product_name }}" style="height: 200px; object-fit: cover;"
+                     onerror="this.onerror=null; this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22400%22 height=%22200%22%3E%3Crect fill=%22%23e9ecef%22 width=%22400%22 height=%22200%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 dominant-baseline=%22middle%22 text-anchor=%22middle%22 font-family=%22sans-serif%22 font-size=%2220%22 fill=%22%236c757d%22%3ENo Image%3C/text%3E%3C/svg%3E';">
+                <div class="card-body">
+                    <h5 class="card-title">{{ product.product_name }}</h5>
+                    <h6 class="card-subtitle mb-2 text-muted">{{ product.supplier_name }}</h6>
+                    <p class="card-text small">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" class="bi bi-geo-alt-fill" viewBox="0 0 16 16">
+                            <path d="M8 16s6-5.686 6-10A6 6 0 0 0 2 6c0 4.314 6 10 6 10zm0-7a3 3 0 1 1 0-6 3 3 0 0 1 0 6z"/>
+                        </svg>
+                        {{ product.location }}
+                    </p>
+                </div>
+                <div class="card-footer bg-transparent">
+                    <a href="/product/{{ product.id }}" class="btn btn-sm btn-primary w-100">View Details</a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
+
+<!-- Preparations Section -->
+{% if !preparations.is_empty() %}
+<div class="mb-5">
+    <h2 class="h4 mb-3">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-clipboard-check" viewBox="0 0 16 16">
+            <path fill-rule="evenodd" d="M10.854 7.146a.5.5 0 0 1 0 .708l-3 3a.5.5 0 0 1-.708 0l-1.5-1.5a.5.5 0 1 1 .708-.708L7.5 9.793l2.646-2.647a.5.5 0 0 1 .708 0z"/>
+            <path d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1h1a1 1 0 0 1 1 1V14a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3.5a1 1 0 0 1 1-1h1v-1z"/>
+            <path d="M9.5 1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5h3zm-3-1A1.5 1.5 0 0 0 5 1.5v1A1.5 1.5 0 0 0 6.5 4h3A1.5 1.5 0 0 0 11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3z"/>
+        </svg>
+        Preparations ({{ preparations.len() }})
+    </h2>
+
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+        {% for prep in preparations %}
+        <div class="col">
+            <div class="card h-100 shadow-sm hover-card">
+                {% if !prep.picture_url.is_empty() %}
+                <img src="{{ prep.picture_url }}" class="card-img-top" alt="{{ prep.name }}" style="height: 200px; object-fit: cover;"
+                     onerror="this.onerror=null; this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22400%22 height=%22200%22%3E%3Crect fill=%22%23e9ecef%22 width=%22400%22 height=%22200%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 dominant-baseline=%22middle%22 text-anchor=%22middle%22 font-family=%22sans-serif%22 font-size=%2220%22 fill=%22%236c757d%22%3ENo Image%3C/text%3E%3C/svg%3E';">
+                {% endif %}
+                <div class="card-body">
+                    <h5 class="card-title">{{ prep.name }}</h5>
+                    <div class="mb-2">
+                        <span class="badge bg-secondary text-capitalize">{{ prep.prep_type }}</span>
+                        <span class="badge
+                            {% if prep.shift == "brekkie" %}bg-primary
+                            {% else if prep.shift == "lunch" %}bg-warning text-dark
+                            {% else %}bg-dark
+                            {% endif %} text-capitalize">
+                            {{ prep.shift }}
+                        </span>
+                    </div>
+                    <p class="card-text small">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" class="bi bi-geo-alt-fill" viewBox="0 0 16 16">
+                            <path d="M8 16s6-5.686 6-10A6 6 0 0 0 2 6c0 4.314 6 10 6 10zm0-7a3 3 0 1 1 0-6 3 3 0 0 1 0 6z"/>
+                        </svg>
+                        {{ prep.location }}
+                    </p>
+                </div>
+                <div class="card-footer bg-transparent">
+                    <a href="/preparation/{{ prep.id }}" class="btn btn-sm btn-success w-100">View Steps</a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
+
+{% endif %}
+{% endblock %}
+
+{% block extra_scripts %}
+<style>
+.hover-card {
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.hover-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+}
+</style>
+{% endblock %}

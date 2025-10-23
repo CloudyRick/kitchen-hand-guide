@@ -1,0 +1,57 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: kitchen_hand_app
+    environment:
+      DATABASE_URL: postgres://postgres:postgres@postgres:5432/kitchen_hand_guide
+      HOST: 0.0.0.0
+      PORT: 8080
+      RUST_LOG: info
+      AWS_REGION: ${AWS_REGION:-us-east-1}
+      AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
+      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
+      S3_BUCKET_NAME: ${S3_BUCKET_NAME}
+      USE_S3: ${USE_S3:-false}
+    ports:
+      - "8080:8080"
+    volumes:
+      - uploads_data:/app/static/uploads
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - kitchen_hand_network
+    restart: unless-stopped
+
+  postgres:
+    image: postgres:15-alpine
+    container_name: kitchen_hand_db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: kitchen_hand_guide
+      PGDATA: /var/lib/postgresql/data/pgdata
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./schema.sql:/docker-entrypoint-initdb.d/schema.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - kitchen_hand_network
+
+volumes:
+  postgres_data:
+    driver: local
+  uploads_data:
+    driver: local
+
+networks:
+  kitchen_hand_network:
+    driver: bridge

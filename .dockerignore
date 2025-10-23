@@ -1,0 +1,6 @@
+target/
+.git/
+.env
+static/uploads/*
+!static/uploads/.gitkeep
+!static/uploads/README.txt

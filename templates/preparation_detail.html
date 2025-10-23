@@ -1,0 +1,198 @@
+{% extends "base.html" %}
+
+{% block title %}{{ preparation.name }} - Kitchen Hand Guide{% endblock %}
+
+{% block content %}
+<div class="row mb-3">
+    <div class="col">
+        <div class="d-flex justify-content-between">
+            <a href="/preparations" class="btn btn-outline-secondary">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-left" viewBox="0 0 16 16">
+                    <path fill-rule="evenodd" d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8z"/>
+                </svg>
+                Back to Preparations
+            </a>
+            {% if is_authenticated %}
+            <a href="/preparation/{{ preparation.id }}/edit" class="btn btn-warning">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil-square" viewBox="0 0 16 16">
+                    <path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z"/>
+                    <path fill-rule="evenodd" d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5v11z"/>
+                </svg>
+                Edit Preparation
+            </a>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-10 mx-auto">
+        <!-- Header Card -->
+        <div class="card shadow-lg mb-4">
+            {% if !preparation.picture_url.is_empty() %}
+            <img src="{{ preparation.picture_url }}" class="card-img-top prep-detail-image" alt="{{ preparation.name }}" style="max-height: 400px; object-fit: cover;"
+                 onerror="this.onerror=null; this.src='data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 width=%27800%27 height=%27400%27%3E%3Crect width=%27800%27 height=%27400%27 fill=%27%23e9ecef%27/%3E%3Ctext x=%2750%25%27 y=%2750%25%27 dominant-baseline=%27middle%27 text-anchor=%27middle%27 font-family=%27sans-serif%27 font-size=%2730%27 fill=%27%276c757d%27%3ENo Image Available%3C/text%3E%3C/svg%3E';">
+            {% endif %}
+            <div class="card-header
+                {% if preparation.prep_type == "fruit" %}bg-success text-white
+                {% else if preparation.prep_type == "veg" %}bg-success text-white
+                {% else if preparation.prep_type == "meat" %}bg-danger text-white
+                {% else if preparation.prep_type == "seafood" %}bg-info text-white
+                {% else if preparation.prep_type == "bread" %}bg-warning text-dark
+                {% endif %}">
+                <h1 class="display-6 mb-0">{{ preparation.name }}</h1>
+            </div>
+            <div class="card-body">
+                <div class="row mb-3">
+                    <div class="col-md-4">
+                        <h6 class="text-muted">TYPE</h6>
+                        <span class="badge bg-secondary fs-6 text-capitalize">{{ preparation.prep_type }}</span>
+                    </div>
+                    <div class="col-md-4">
+                        <h6 class="text-muted">SHIFT</h6>
+                        <span class="badge
+                            {% if preparation.shift == "brekkie" %}bg-primary
+                            {% else if preparation.shift == "lunch" %}bg-warning text-dark
+                            {% else %}bg-dark
+                            {% endif %} fs-6 text-capitalize">
+                            {{ preparation.shift }}
+                        </span>
+                    </div>
+                    <div class="col-md-4">
+                        <h6 class="text-muted">LOCATION</h6>
+                        <p class="mb-0">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-geo-alt-fill" viewBox="0 0 16 16">
+                                <path d="M8 16s6-5.686 6-10A6 6 0 0 0 2 6c0 4.314 6 10 6 10zm0-7a3 3 0 1 1 0-6 3 3 0 0 1 0 6z"/>
+                            </svg>
+                            {{ preparation.location }}
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Step-by-Step Instructions Card -->
+        <div class="card shadow-lg">
+            <div class="card-header bg-primary text-white">
+                <h3 class="mb-0">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-list-ol" viewBox="0 0 16 16">
+                        <path fill-rule="evenodd" d="M5 11.5a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1-.5-.5z"/>
+                        <path d="M1.713 11.865v-.474H2c.217 0 .363-.137.363-.317 0-.185-.158-.31-.361-.31-.223 0-.367.152-.373.31h-.59c.016-.467.373-.787.986-.787.588-.002.954.291.957.703a.595.595 0 0 1-.492.594v.033a.615.615 0 0 1 .569.631c.003.533-.502.8-1.051.8-.656 0-1-.37-1.008-.794h.582c.008.178.186.306.422.309.254 0 .424-.145.422-.35-.002-.195-.155-.348-.414-.348h-.3zm-.004-4.699h-.604v-.035c0-.408.295-.844.958-.844.583 0 .96.326.96.756 0 .389-.257.617-.476.848l-.537.572v.03h1.054V9H1.143v-.395l.957-.99c.138-.142.293-.304.293-.508 0-.18-.147-.32-.342-.32a.33.33 0 0 0-.342.338v.041zM2.564 5h-.635V2.924h-.031l-.598.42v-.567l.629-.443h.635V5z"/>
+                    </svg>
+                    Step-by-Step Instructions
+                </h3>
+            </div>
+            <div class="card-body">
+                <div class="preparation-steps">
+                    {% for step in steps %}
+                    <div class="step-item mb-4 p-3 border-start border-4 border-primary bg-light">
+                        <div class="d-flex align-items-start">
+                            <div class="step-number me-3">
+                                <span class="badge bg-primary fs-5">{{ step.step_number }}</span>
+                            </div>
+                            <div class="flex-grow-1">
+                                <div class="step-content mb-2">
+                                    {{ step.description }}
+                                </div>
+                                {% if !step.picture_url.is_empty() %}
+                                <div class="step-image mt-2">
+                                    <img src="{{ step.picture_url }}" alt="Step {{ step.step_number }}" class="img-fluid rounded step-image" style="max-height: 300px; object-fit: cover;"
+                                         onerror="this.onerror=null; this.src='data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 width=%27400%27 height=%27300%27%3E%3Crect width=%27400%27 height=%27300%27 fill=%27%23e9ecef%27/%3E%3Ctext x=%2750%25%27 y=%2750%25%27 dominant-baseline=%27middle%27 text-anchor=%27middle%27 font-family=%27sans-serif%27 font-size=%2720%27 fill=%27%236c757d%27%3EImage Not Available%3C/text%3E%3C/svg%3E';">
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Safety Reminder Card -->
+        <div class="card mt-4 border-warning">
+            <div class="card-header bg-warning text-dark">
+                <h5 class="mb-0">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-exclamation-triangle-fill" viewBox="0 0 16 16">
+                        <path d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"/>
+                    </svg>
+                    Safety & Hygiene Reminders
+                </h5>
+            </div>
+            <div class="card-body">
+                <ul class="mb-0">
+                    <li>Wash hands before and after handling food</li>
+                    <li>Ensure all equipment and surfaces are clean and sanitized</li>
+                    <li>Check food temperatures regularly</li>
+                    <li>Label all prepared items with date and time</li>
+                    <li>Store at correct temperature immediately after preparation</li>
+                    <li>Follow FIFO (First In, First Out) principles</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Metadata Card -->
+        <div class="card mt-4 bg-light">
+            <div class="card-body">
+                <small class="text-muted">
+                    <strong>Preparation ID:</strong> {{ preparation.id }}<br>
+                    <strong>Added:</strong> {{ preparation.created_at }}<br>
+                    {% if preparation.updated_at != preparation.created_at %}
+                    <strong>Last Updated:</strong> {{ preparation.updated_at }}<br>
+                    {% endif %}
+                </small>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+// Optional: Add print functionality
+function printPrep() {
+    window.print();
+}
+
+// Optional: Add completion tracking
+document.querySelectorAll('.step-item').forEach(function(step, index) {
+    step.style.cursor = 'pointer';
+    step.addEventListener('click', function(e) {
+        // Don't toggle completion if clicking on an image
+        if (e.target.tagName === 'IMG') {
+            return;
+        }
+        this.classList.toggle('completed-step');
+        this.style.opacity = this.classList.contains('completed-step') ? '0.6' : '1';
+    });
+});
+</script>
+
+<style>
+.preparation-steps .step-item {
+    font-size: 1.1rem;
+    line-height: 1.6;
+    transition: all 0.3s ease;
+}
+
+.preparation-steps .step-item:hover {
+    background-color: #e7f3ff !important;
+    transform: translateX(5px);
+}
+
+.preparation-steps .step-content {
+    white-space: pre-wrap;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+@media print {
+    .btn, .card-footer, nav, footer {
+        display: none !important;
+    }
+
+    .card {
+        border: 1px solid #dee2e6 !important;
+        box-shadow: none !important;
+    }
+}
+</style>
+{% endblock %}

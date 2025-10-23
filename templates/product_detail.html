@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+
+{% block title %}{{ product.product_name }} - Kitchen Hand Guide{% endblock %}
+
+{% block content %}
+<div class="row mb-3">
+    <div class="col">
+        <div class="d-flex justify-content-between">
+            <a href="/" class="btn btn-outline-secondary">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-left" viewBox="0 0 16 16">
+                    <path fill-rule="evenodd" d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8z"/>
+                </svg>
+                Back to Products
+            </a>
+            {% if is_authenticated %}
+            <a href="/product/{{ product.id }}/edit" class="btn btn-warning">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil-square" viewBox="0 0 16 16">
+                    <path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z"/>
+                    <path fill-rule="evenodd" d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5v11z"/>
+                </svg>
+                Edit Product
+            </a>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-10 mx-auto">
+        <div class="card shadow-lg">
+            <div class="row g-0">
+                <div class="col-md-5">
+                    <img src="{{ product.picture_url }}" class="img-fluid rounded-start product-detail-image"
+                         alt="{{ product.product_name }}"
+                         onerror="this.onerror=null; this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22800%22 height=%22600%22%3E%3Crect fill=%22%23e9ecef%22 width=%22800%22 height=%22600%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 dominant-baseline=%22middle%22 text-anchor=%22middle%22 font-family=%22sans-serif%22 font-size=%2232%22 fill=%22%236c757d%22%3ENo Image%3C/text%3E%3C/svg%3E'">
+                </div>
+                <div class="col-md-7">
+                    <div class="card-body">
+                        <h1 class="card-title display-5">{{ product.product_name }}</h1>
+                        <h5 class="text-muted mb-4">{{ product.supplier_name }}</h5>
+
+                        <div class="mb-4">
+                            <h6 class="text-uppercase text-muted">Storage Location</h6>
+                            <p class="fs-5">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-geo-alt-fill" viewBox="0 0 16 16">
+                                    <path d="M8 16s6-5.686 6-10A6 6 0 0 0 2 6c0 4.314 6 10 6 10zm0-7a3 3 0 1 1 0-6 3 3 0 0 1 0 6z"/>
+                                </svg>
+                                {{ product.location }}
+                            </p>
+                        </div>
+
+                        <div class="mb-4">
+                            <h6 class="text-uppercase text-muted">Description & Instructions</h6>
+                            <p class="card-text" style="white-space: pre-line;">{{ product.description }}</p>
+                        </div>
+
+                        <div class="border-top pt-3">
+                            <small class="text-muted">
+                                <strong>Product ID:</strong> {{ product.id }}<br>
+                                <strong>Added:</strong> {{ product.created_at }}<br>
+                                {% if product.updated_at != product.created_at %}
+                                <strong>Last Updated:</strong> {{ product.updated_at }}<br>
+                                {% endif %}
+                            </small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Tips Section -->
+        <div class="card mt-4 border-info">
+            <div class="card-header bg-info text-white">
+                <h5 class="mb-0">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-lightbulb" viewBox="0 0 16 16">
+                        <path d="M2 6a6 6 0 1 1 10.174 4.31c-.203.196-.359.4-.453.619l-.762 1.769A.5.5 0 0 1 10.5 13a.5.5 0 0 1 0 1 .5.5 0 0 1 0 1l-.224.447a1 1 0 0 1-.894.553H6.618a1 1 0 0 1-.894-.553L5.5 15a.5.5 0 0 1 0-1 .5.5 0 0 1 0-1 .5.5 0 0 1-.46-.302l-.761-1.77a1.964 1.964 0 0 0-.453-.618A5.984 5.984 0 0 1 2 6zm6-5a5 5 0 0 0-3.479 8.592c.263.254.514.564.676.941L5.83 12h4.342l.632-1.467c.162-.377.413-.687.676-.941A5 5 0 0 0 8 1z"/>
+                    </svg>
+                    Kitchen Hand Tips
+                </h5>
+            </div>
+            <div class="card-body">
+                <ul class="mb-0">
+                    <li>Always check the storage location label before putting items away</li>
+                    <li>Follow FIFO (First In, First Out) - use older stock first</li>
+                    <li>Check expiry dates daily and report any expired items</li>
+                    <li>Keep storage areas clean and organized</li>
+                    <li>Report any temperature issues immediately</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

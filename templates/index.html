@@ -1,0 +1,152 @@
+{% extends "base.html" %}
+
+{% block title %}Home - Kitchen Hand Guide{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col">
+        <h1 class="display-4">Kitchen Hand Training Guide</h1>
+        <p class="lead">Welcome! Here you'll find all the products, suppliers, and storage information you need to know.</p>
+    </div>
+</div>
+
+{% if is_authenticated %}
+<div class="row mb-3">
+    <div class="col">
+        <a href="/product/new" class="btn btn-primary btn-lg">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-plus-circle" viewBox="0 0 16 16">
+                <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+                <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z"/>
+            </svg>
+            Add New Product
+        </a>
+    </div>
+</div>
+{% endif %}
+
+<!-- Location Guide Section -->
+<div class="row mb-5">
+    <div class="col">
+        <div class="card shadow-lg border-info">
+            <div class="card-header bg-info text-white">
+                <h2 class="mb-0">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" fill="currentColor" class="bi bi-map" viewBox="0 0 16 16">
+                        <path fill-rule="evenodd" d="M15.817.113A.5.5 0 0 1 16 .5v14a.5.5 0 0 1-.402.49l-5 1a.502.502 0 0 1-.196 0L5.5 15.01l-4.902.98A.5.5 0 0 1 0 15.5v-14a.5.5 0 0 1 .402-.49l5-1a.5.5 0 0 1 .196 0L10.5.99l4.902-.98a.5.5 0 0 1 .415.103zM10 1.91l-4-.8v12.98l4 .8V1.91zm1 12.98 4-.8V1.11l-4 .8v12.98zm-6-.8V1.11l-4 .8v12.98l4-.8z"/>
+                    </svg>
+                    Kitchen Location Guide
+                </h2>
+            </div>
+            <div class="card-body p-4">
+                <p class="lead mb-4">Quick reference guide to help you navigate the kitchen locations and storage areas.</p>
+
+                <div class="row g-4">
+                    <!-- Guide 1 -->
+                    <div class="col-md-4">
+                        <div class="guide-item">
+                            <div class="guide-image-container mb-3">
+                                <img src="/static/uploads/guide-1.jpg"
+                                     alt="Storage Area Guide"
+                                     class="img-fluid rounded shadow"
+                                     onerror="this.onerror=null; this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22400%22 height=%22300%22%3E%3Crect fill=%22%23e3f2fd%22 width=%22400%22 height=%22300%22/%3E%3Ctext x=%2250%25%22 y=%2240%25%22 dominant-baseline=%22middle%22 text-anchor=%22middle%22 font-family=%22sans-serif%22 font-size=%2220%22 fill=%22%232196f3%22%3EStorage Area%3C/text%3E%3Ctext x=%2250%25%22 y=%2260%25%22 dominant-baseline=%22middle%22 text-anchor=%22middle%22 font-family=%22sans-serif%22 font-size=%2216%22 fill=%22%232196f3%22%3EGuide Image%3C/text%3E%3C/svg%3E';">
+                            </div>
+                            <h5 class="text-primary">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-1-circle-fill" viewBox="0 0 16 16">
+                                    <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0ZM9.283 4.002V12H7.971V5.338h-.065L6.072 6.656V5.385l1.899-1.383h1.312Z"/>
+                                </svg>
+                                Storage Areas
+                            </h5>
+                            <p class="text-muted">
+                                Main storage locations for dry goods, refrigerated items, and frozen products.
+                                Pay attention to labeled zones and temperature requirements.
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Guide 2 -->
+                    <div class="col-md-4">
+                        <div class="guide-item">
+                            <div class="guide-image-container mb-3">
+                                <img src="/static/uploads/guide-2.jpg"
+                                     alt="Prep Stations Guide"
+                                     class="img-fluid rounded shadow"
+                                     onerror="this.onerror=null; this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22400%22 height=%22300%22%3E%3Crect fill=%22%23f3e5f5%22 width=%22400%22 height=%22300%22/%3E%3Ctext x=%2250%25%22 y=%2240%25%22 dominant-baseline=%22middle%22 text-anchor=%22middle%22 font-family=%22sans-serif%22 font-size=%2220%22 fill=%22%239c27b0%22%3EPrep Stations%3C/text%3E%3Ctext x=%2250%25%22 y=%2260%25%22 dominant-baseline=%22middle%22 text-anchor=%22middle%22 font-family=%22sans-serif%22 font-size=%2216%22 fill=%22%239c27b0%22%3EGuide Image%3C/text%3E%3C/svg%3E';">
+                            </div>
+                            <h5 class="text-primary">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-2-circle-fill" viewBox="0 0 16 16">
+                                    <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0ZM6.646 6.24c0-.691.493-1.306 1.336-1.306.756 0 1.313.492 1.313 1.236 0 .697-.469 1.23-.902 1.705l-2.971 3.293V12h5.344v-1.107H7.268v-.077l1.974-2.22.096-.107c.688-.763 1.287-1.428 1.287-2.43 0-1.266-1.031-2.215-2.613-2.215-1.758 0-2.637 1.19-2.637 2.402v.065h1.271v-.07Z"/>
+                                </svg>
+                                Prep Stations
+                            </h5>
+                            <p class="text-muted">
+                                Designated preparation areas for different food types. Each station is equipped with specific tools and follows strict hygiene protocols.
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Guide 3 -->
+                    <div class="col-md-4">
+                        <div class="guide-item">
+                            <div class="guide-image-container mb-3">
+                                <img src="/static/uploads/guide-3.jpg"
+                                     alt="Equipment Locations Guide"
+                                     class="img-fluid rounded shadow"
+                                     onerror="this.onerror=null; this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22400%22 height=%22300%22%3E%3Crect fill=%22%23fff3e0%22 width=%22400%22 height=%22300%22/%3E%3Ctext x=%2250%25%22 y=%2240%25%22 dominant-baseline=%22middle%22 text-anchor=%22middle%22 font-family=%22sans-serif%22 font-size=%2220%22 fill=%22%23ff9800%22%3EEquipment%3C/text%3E%3Ctext x=%2250%25%22 y=%2260%25%22 dominant-baseline=%22middle%22 text-anchor=%22middle%22 font-family=%22sans-serif%22 font-size=%2216%22 fill=%22%23ff9800%22%3EGuide Image%3C/text%3E%3C/svg%3E';">
+                            </div>
+                            <h5 class="text-primary">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-3-circle-fill" viewBox="0 0 16 16">
+                                    <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0Zm-8.082.414c.92 0 1.535.54 1.541 1.318.012.791-.615 1.36-1.588 1.354-.861-.006-1.482-.469-1.54-1.066H5.104c.047 1.177 1.05 2.144 2.754 2.144 1.653 0 2.954-.937 2.93-2.396-.023-1.278-1.031-1.846-1.734-1.916v-.07c.597-.1 1.505-.739 1.482-1.876-.03-1.177-1.043-2.074-2.637-2.062-1.675.006-2.59.984-2.625 2.12h1.248c.036-.556.557-1.054 1.348-1.054.785 0 1.348.486 1.348 1.195.006.715-.563 1.237-1.342 1.237h-.838v1.072h.879Z"/>
+                                </svg>
+                                Equipment Locations
+                            </h5>
+                            <p class="text-muted">
+                                Key equipment locations including ovens, mixers, slicers, and cleaning stations. Always return equipment to designated areas after use.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="alert alert-info mt-4 mb-0" role="alert">
+                    <strong>Tip:</strong> Upload your annotated guide images to <code>/static/uploads/</code> as <code>guide-1.jpg</code>, <code>guide-2.jpg</code>, and <code>guide-3.jpg</code> to replace the placeholder images.
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% if products.is_empty() %}
+<div class="alert alert-info" role="alert">
+    <h4 class="alert-heading">No products yet!</h4>
+    <p>Get started by adding your first product using the button above.</p>
+</div>
+{% else %}
+<div class="row">
+    <div class="col">
+        <h2 class="mb-4">Products ({{ products.len() }})</h2>
+    </div>
+</div>
+
+<div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+    {% for product in products %}
+    <div class="col">
+        <div class="card h-100 shadow-sm product-card">
+            <img src="{{ product.picture_url }}" class="card-img-top product-image" alt="{{ product.product_name }}"
+                 onerror="this.onerror=null; this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22400%22 height=%22300%22%3E%3Crect fill=%22%23e9ecef%22 width=%22400%22 height=%22300%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 dominant-baseline=%22middle%22 text-anchor=%22middle%22 font-family=%22sans-serif%22 font-size=%2224%22 fill=%22%236c757d%22%3ENo Image%3C/text%3E%3C/svg%3E'">
+            <div class="card-body">
+                <h5 class="card-title">{{ product.product_name }}</h5>
+                <h6 class="card-subtitle mb-2 text-muted">{{ product.supplier_name }}</h6>
+                <p class="card-text">
+                    <strong>Location:</strong> {{ product.location }}
+                </p>
+                <p class="card-text text-truncate-3">
+                    {{ product.description }}
+                </p>
+            </div>
+            <div class="card-footer bg-transparent">
+                <a href="/product/{{ product.id }}" class="btn btn-sm btn-outline-primary w-100">View Details</a>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+{% endblock %}
