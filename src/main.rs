@@ -76,24 +76,50 @@ async fn main() -> std::io::Result<()> {
             .route("/401", web::get().to(handlers::error_401))
             // Serve static files
             .service(fs::Files::new("/static", "./static").show_files_listing())
-            // Public detail routes (MUST come before protected routes with similar patterns)
+            // Protected Routes - Require Authentication (specific routes first to avoid conflicts)
+            .service(
+                web::resource("/product/new")
+                    .route(web::get().to(handlers::new_product_form))
+                    .wrap(middleware::Authentication)
+            )
+            .service(
+                web::resource("/product")
+                    .route(web::post().to(handlers::create_product))
+                    .wrap(middleware::Authentication)
+            )
+            .service(
+                web::resource("/product/{id}/edit")
+                    .route(web::get().to(handlers::edit_product_form))
+                    .wrap(middleware::Authentication)
+            )
+            .service(
+                web::resource("/product/{id}/update")
+                    .route(web::post().to(handlers::update_product))
+                    .wrap(middleware::Authentication)
+            )
+            .service(
+                web::resource("/preparation/new")
+                    .route(web::get().to(handlers::new_preparation_form))
+                    .wrap(middleware::Authentication)
+            )
+            .service(
+                web::resource("/preparation")
+                    .route(web::post().to(handlers::create_preparation))
+                    .wrap(middleware::Authentication)
+            )
+            .service(
+                web::resource("/preparation/{id}/edit")
+                    .route(web::get().to(handlers::edit_preparation_form))
+                    .wrap(middleware::Authentication)
+            )
+            .service(
+                web::resource("/preparation/{id}/update")
+                    .route(web::post().to(handlers::update_preparation))
+                    .wrap(middleware::Authentication)
+            )
+            // Public detail routes (accessible without authentication, MUST come after specific routes)
             .route("/product/{id}", web::get().to(handlers::product_detail))
             .route("/preparation/{preparation_id}", web::get().to(handlers::preparation_detail))
-            // Protected Routes - Require Authentication
-            .service(
-                web::scope("")
-                    .wrap(middleware::Authentication)
-                    // Product Create/Edit Routes
-                    .route("/product/new", web::get().to(handlers::new_product_form))
-                    .route("/product", web::post().to(handlers::create_product))
-                    .route("/product/{id}/edit", web::get().to(handlers::edit_product_form))
-                    .route("/product/{id}/update", web::post().to(handlers::update_product))
-                    // Preparation Create/Edit Routes
-                    .route("/preparation/new", web::get().to(handlers::new_preparation_form))
-                    .route("/preparation", web::post().to(handlers::create_preparation))
-                    .route("/preparation/{id}/edit", web::get().to(handlers::edit_preparation_form))
-                    .route("/preparation/{id}/update", web::post().to(handlers::update_preparation))
-            )
     })
     .bind(&server_address)?
     .run()
