@@ -22,7 +22,7 @@ docker rm kitchen_hand_app 2>/dev/null || true
 
 # Build the Docker image
 echo "🔨 Building Docker image..."
-DOCKER_BUILDKIT=1 docker build -t kitchen-hand-guide_app .
+docker build -t kitchen-hand-guide_app .
 
 if [ $? -eq 0 ]; then
     echo "✅ Docker image built successfully!"
