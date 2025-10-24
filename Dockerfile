@@ -13,13 +13,7 @@ WORKDIR /app
 # Copy dependency files first for better caching
 COPY Cargo.toml Cargo.lock ./
 
-# Create a dummy main.rs to build dependencies
-RUN mkdir src && \
-    echo "fn main() {}" > src/main.rs && \
-    cargo build --release && \
-    rm -rf src
-
-# Copy source code (this layer will be rebuilt when source changes)
+# Copy source code
 COPY src ./src
 COPY templates ./templates
 COPY static ./static
