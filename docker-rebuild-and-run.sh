@@ -35,7 +35,7 @@ fi
 echo "🚀 Starting container..."
 docker run -d \
     --name kitchen_hand_app \
-    --network host \
+    --network kitchen-net \
     --env-file .env \
     kitchen-hand-guide_app
 
@@ -57,7 +57,7 @@ if [ $? -eq 0 ]; then
     echo "📋 Container Details:"
     echo "   Name: kitchen_hand_app"
     echo "   Image: kitchen-hand-guide_app"
-    echo "   Network: host"
+    echo "   Network: kitchen-net"
     echo "   Environment: .env file"
     echo ""
     echo "🌐 Application should be available at:"
